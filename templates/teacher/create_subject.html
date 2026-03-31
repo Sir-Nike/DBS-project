@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Create Subject{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Create New Subject</h2>
+    <p>Subject will be added to <strong>{{ teacher.department_name }}</strong></p>
+</div>
+
+<div class="card" style="max-width: 480px;">
+    <form method="POST" action="{{ url_for('teacher.create_subject') }}">
+
+        <div class="form-group">
+            <label for="subject_name">Subject Name</label>
+            <input type="text" id="subject_name" name="subject_name"
+                   placeholder="e.g. Database Systems" required>
+        </div>
+
+        <div class="form-group">
+            <label for="subject_code">Subject Code</label>
+            <input type="text" id="subject_code" name="subject_code"
+                   placeholder="e.g. CCE2212" required>
+        </div>
+
+        <div class="form-group">
+            <label for="semester">Semester</label>
+            <select id="semester" name="semester" required>
+                <option value="">-- Select Semester --</option>
+                {% for i in range(1, 9) %}
+                <option value="{{ i }}">Semester {{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="display:flex; gap:0.8rem;">
+            <button type="submit" class="btn btn-primary">Create Subject</button>
+            <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline">Cancel</a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Student Dashboard</h2>
+    <p>Available quizzes and your attempts</p>
+</div>
+
+{% if quizzes %}
+<div class="quiz-grid">
+    {% for q in quizzes %}
+    <div class="quiz-card">
+        <h3>{{ q.quiz_title }}</h3>
+        <div class="quiz-meta">
+            <span>📚 {{ q.subject_name }} ({{ q.subject_code }})</span>
+            <span>⏱ {{ q.duration_minutes }} mins &nbsp;|&nbsp; 🎯 {{ q.total_marks }} marks</span>
+            <span>📅 {{ q.quiz_date }}</span>
+        </div>
+
+        <div style="margin-top: 0.5rem;">
+            {% if q.attempt_id %}
+                <span class="badge badge-success">Attempted</span>
+                {% if q.results_published %}
+                    <span class="badge badge-info">Results Available</span>
+                {% else %}
+                    <span class="badge badge-warning">Results Pending</span>
+                {% endif %}
+            {% else %}
+                <span class="badge badge-warning">Not Attempted</span>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 0.8rem;">
+            {% if q.attempt_id %}
+                {% if q.results_published %}
+                    <a href="{{ url_for('student.view_result', attempt_id=q.attempt_id) }}"
+                       class="btn btn-primary btn-sm">View Result</a>
+                {% else %}
+                    <span style="font-size:0.85rem; color:var(--text-muted);">
+                        Awaiting result publication
+                    </span>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('student.take_quiz', quiz_id=q.quiz_id) }}"
+                   class="btn btn-primary btn-sm">Take Quiz →</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="card" style="text-align: center; padding: 3rem;">
+    <p style="color: var(--text-muted);">No quizzes available yet. Check back later.</p>
+</div>
+{% endif %}
+{% endblock %}

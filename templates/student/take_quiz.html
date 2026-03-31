@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.quiz_title }}{% endblock %}
+
+{% block content %}
+<div class="quiz-take-header">
+    <div>
+        <h2>{{ quiz.quiz_title }}</h2>
+        <p style="color:var(--text-muted); font-size:0.9rem;">
+            {{ quiz.subject_name }} &nbsp;|&nbsp; {{ questions|length }} questions &nbsp;|&nbsp; {{ quiz.total_marks }} marks
+        </p>
+    </div>
+    <div class="timer-box" id="timer">{{ quiz.duration_minutes }}:00</div>
+</div>
+
+<form method="POST" action="{{ url_for('student.submit_quiz', quiz_id=quiz.quiz_id) }}" id="quiz-form">
+
+    {% for q in questions %}
+    <div class="question-block">
+        <div class="question-number">Question {{ loop.index }} of {{ questions|length }} · {{ q.marks }} mark(s)</div>
+        <div class="question-text">{{ q.question_text }}</div>
+
+        <ul class="options-list">
+            {% for opt in q.options %}
+            <li>
+                <label class="option-label">
+                    <input type="radio" name="question_{{ q.question_id }}"
+                           value="{{ opt.option_id }}" required>
+                    {{ opt.option_text }}
+                </label>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+        <button type="submit" class="btn btn-primary"
+                onclick="return confirm('Submit quiz? You cannot change your answers after submission.');">
+            Submit Quiz
+        </button>
+        <span style="font-size:0.85rem; color:var(--text-muted);">
+            Quiz auto-submits when timer reaches 0
+        </span>
+    </div>
+
+</form>
+
+<script>
+    // Duration in seconds
+    let totalSeconds = {{ quiz.duration_minutes }} * 60;
+    const timerEl = document.getElementById('timer');
+    const form    = document.getElementById('quiz-form');
+
+    function updateTimer() {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        timerEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+        // Warning states
+        if (totalSeconds <= 60) {
+            timerEl.classList.add('danger');
+            timerEl.classList.remove('warning');
+        } else if (totalSeconds <= 180) {
+            timerEl.classList.add('warning');
+        }
+
+        if (totalSeconds <= 0) {
+            // Auto submit
+            form.submit();
+            return;
+        }
+
+        totalSeconds--;
+        setTimeout(updateTimer, 1000);
+    }
+
+    updateTimer();
+</script>
+{% endblock %}

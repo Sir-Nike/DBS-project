@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Teacher Dashboard</h2>
+    <p>Manage your quizzes and view student results</p>
+</div>
+
+<div style="margin-bottom: 1.5rem;">
+    <a href="{{ url_for('teacher.create_quiz') }}" class="btn btn-primary">+ Create New Quiz</a>
+    <a href="{{ url_for('teacher.create_subject') }}" class="btn btn-outline" style="margin-left:0.5rem;">+ Create Subject</a>
+</div>
+
+{% if quizzes %}
+<div class="quiz-grid">
+    {% for q in quizzes %}
+    <div class="quiz-card">
+        <h3>{{ q.quiz_title }}</h3>
+        <div class="quiz-meta">
+            <span>📚 {{ q.subject_name }} ({{ q.subject_code }})</span>
+            <span>⏱ {{ q.duration_minutes }} mins &nbsp;|&nbsp; 🎯 {{ q.total_marks }} marks</span>
+            <span>📅 {{ q.quiz_date }}</span>
+            <span>👥 {{ q.attempt_count }} attempt(s)</span>
+        </div>
+
+        <div style="margin-top: 0.5rem;">
+            {% if q.results_published %}
+                <span class="badge badge-success">Results Published</span>
+            {% else %}
+                <span class="badge badge-warning">Results Hidden</span>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap;">
+            <a href="{{ url_for('teacher.add_question', quiz_id=q.quiz_id) }}"
+               class="btn btn-outline btn-sm">Add Questions</a>
+            <a href="{{ url_for('teacher.view_results', quiz_id=q.quiz_id) }}"
+               class="btn btn-outline btn-sm">View Results</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="card" style="text-align: center; padding: 3rem;">
+    <p style="color: var(--text-muted); margin-bottom: 1rem;">No quizzes yet.</p>
+    <a href="{{ url_for('teacher.create_quiz') }}" class="btn btn-primary">Create your first quiz</a>
+</div>
+{% endif %}
+{% endblock %}

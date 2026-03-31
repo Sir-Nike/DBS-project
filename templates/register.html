@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 480px;">
+
+        <div class="auth-header">
+            <div class="auth-logo">📋</div>
+            <h1>Create Account</h1>
+            <p>CCE Quiz Portal — MIT Manipal</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+
+            <div class="form-group">
+                <label>I am a</label>
+                <div style="display:flex; gap:1rem;">
+                    <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-weight:600;">
+                        <input type="radio" name="role" value="student"
+                               onchange="toggleRole('student')" style="width:auto;" checked>
+                        🎓 Student
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-weight:600;">
+                        <input type="radio" name="role" value="teacher"
+                               onchange="toggleRole('teacher')" style="width:auto;">
+                        👨‍🏫 Teacher
+                    </label>
+                </div>
+            </div>
+
+            <!-- Student: roll number -->
+            <div class="form-group" id="roll-group">
+                <label for="roll_number">Roll Number</label>
+                <input type="text" id="roll_number" name="roll_number"
+                       placeholder="e.g. 240953382">
+            </div>
+
+            <!-- Teacher: staff ID -->
+            <div class="form-group" id="staff-group" style="display:none;">
+                <label for="staff_id">Staff ID</label>
+                <input type="text" id="staff_id" name="staff_id"
+                       placeholder="e.g. CCE212">
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name"
+                       placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="department_id">Department</label>
+                <select id="department_id" name="department_id" required>
+                    <option value="">-- Select Department --</option>
+                    {% for d in departments %}
+                    <option value="{{ d.department_id }}">{{ d.department_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Choose a password" required>
+            </div>
+
+            <!-- Student: subject enrollment -->
+            <div class="form-group" id="subjects-group">
+                <label>Enroll in Subjects</label>
+                {% if subjects %}
+                <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                    {% for s in subjects %}
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                                  padding:0.5rem 0.75rem; border:1.5px solid var(--border);
+                                  border-radius:6px; font-size:0.9rem;">
+                        <input type="checkbox" name="subjects" value="{{ s.subject_id }}"
+                               style="width:auto;">
+                        {{ s.subject_name }} ({{ s.subject_code }})
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="font-size:0.85rem; color:var(--text-muted);">
+                    No subjects available yet. You can enroll after a teacher creates subjects.
+                </p>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">Create Account →</button>
+
+        </form>
+
+        <p class="auth-footer">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}">Login here</a>
+        </p>
+
+    </div>
+</div>
+
+<script>
+function toggleRole(role) {
+    document.getElementById('roll-group').style.display     = role === 'student' ? 'block' : 'none';
+    document.getElementById('staff-group').style.display    = role === 'teacher' ? 'block' : 'none';
+    document.getElementById('subjects-group').style.display = role === 'student' ? 'block' : 'none';
+}
+toggleRole('student');
+</script>
+{% endblock %}

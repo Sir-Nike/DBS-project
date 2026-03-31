@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Add Questions{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>{{ quiz.quiz_title }}</h2>
+    <p>Add questions to this quiz</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+
+    <!-- LEFT: Add question form -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">New Question</span>
+        </div>
+
+        <form method="POST" id="question-form">
+            <div class="form-group">
+                <label for="question_text">Question Text</label>
+                <textarea id="question_text" name="question_text" rows="3"
+                          placeholder="Enter your question here..." required></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="question_type">Question Type</label>
+                    <select id="question_type" name="question_type" required onchange="toggleOptions(this.value)">
+                        <option value="">-- Select --</option>
+                        <option value="MCQ">MCQ</option>
+                        <option value="TrueFalse">True / False</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="marks">Marks</label>
+                    <input type="number" id="marks" name="marks" min="1" placeholder="2" required>
+                </div>
+            </div>
+
+            <!-- MCQ Options -->
+            <div id="mcq-options" style="display:none;">
+                <p style="font-size:0.82rem; font-weight:700; color:var(--text-muted);
+                           text-transform:uppercase; margin-bottom:0.6rem;">
+                    Options — select the correct one
+                </p>
+                {% for i in range(1, 5) %}
+                <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem;">
+                    <input type="radio" name="correct_mcq" value="{{ i }}"
+                           style="width:auto; flex-shrink:0;">
+                    <input type="text" name="option_{{ i }}"
+                           placeholder="Option {{ i }}" style="flex:1;">
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- True/False Options -->
+            <div id="tf-options" style="display:none;">
+                <p style="font-size:0.82rem; font-weight:700; color:var(--text-muted);
+                           text-transform:uppercase; margin-bottom:0.6rem;">
+                    Correct Answer
+                </p>
+                <div style="display: flex; gap: 1.5rem;">
+                    <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                        <input type="radio" name="correct_tf" value="True" style="width:auto;" checked>
+                        True
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                        <input type="radio" name="correct_tf" value="False" style="width:auto;">
+                        False
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.2rem; display: flex; gap: 0.8rem;">
+                <button type="submit" class="btn btn-primary">Add Question</button>
+                <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline">Done</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- RIGHT: Existing questions -->
+    <div>
+        <div class="card-header" style="margin-bottom:0.8rem;">
+            <span class="card-title">Questions Added ({{ questions|length }})</span>
+        </div>
+
+        {% if questions %}
+            {% for q in questions %}
+            <div class="question-block" style="margin-bottom:0.8rem;">
+                <div class="question-number">Q{{ loop.index }} · {{ q.question_type }} · {{ q.marks }} mark(s)</div>
+                <div class="question-text">{{ q.question_text }}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.8rem; color:var(--text-muted);">
+                        {{ q.option_count }} option(s)
+                    </span>
+                    <form method="POST"
+                          action="{{ url_for('teacher.delete_question', question_id=q.question_id) }}"
+                          onsubmit="return confirm('Delete this question?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card" style="text-align:center; color:var(--text-muted); padding:2rem;">
+                No questions yet. Add your first one.
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<script>
+function toggleOptions(type) {
+    document.getElementById('mcq-options').style.display = type === 'MCQ' ? 'block' : 'none';
+    document.getElementById('tf-options').style.display  = type === 'TrueFalse' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Results — {{ quiz.quiz_title }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>{{ quiz.quiz_title }}</h2>
+    <p>{{ quiz.subject_name }} &nbsp;|&nbsp; Total Marks: {{ quiz.total_marks }}</p>
+</div>
+
+<div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+    <a href="{{ url_for('teacher.dashboard') }}" class="btn btn-outline btn-sm">← Back</a>
+
+    <form method="POST" action="{{ url_for('teacher.publish_results', quiz_id=quiz.quiz_id) }}">
+        {% if quiz.results_published %}
+            <button type="submit" class="btn btn-danger btn-sm">Unpublish Results</button>
+        {% else %}
+            <button type="submit" class="btn btn-success btn-sm">Publish Results</button>
+        {% endif %}
+    </form>
+
+    {% if quiz.results_published %}
+        <span class="badge badge-success">Results are visible to students</span>
+    {% else %}
+        <span class="badge badge-warning">Results hidden from students</span>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Student Attempts ({{ attempts|length }})</span>
+    </div>
+
+    {% if attempts %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                    <th>Score</th>
+                    <th>Percentage</th>
+                    <th>Submitted At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in attempts %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ a.student_name }}</td>
+                    <td>{{ a.roll_number }}</td>
+                    <td>{{ a.total_score }} / {{ quiz.total_marks }}</td>
+                    <td>
+                        {% set pct = ((a.total_score / quiz.total_marks) * 100) | round(1) %}
+                        {% if pct >= 60 %}
+                            <span class="badge badge-success">{{ pct }}%</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ pct }}%</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ a.submission_time.strftime('%d %b %Y, %I:%M %p') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding: 2rem; color: var(--text-muted);">
+        No students have attempted this quiz yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
